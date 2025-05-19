@@ -1,6 +1,7 @@
 from typing import Type, TypeVar
 
 from pydantic import BaseModel
+import config
 from dataset_builder.interactor.dependencies.doc_embedder import DocumentEmbedder
 from dataset_builder.interactor.dependencies.embedded_document import EmbeddedDocument, Embedding
 from dataset_builder.interactor.dependencies.read_document import ReadDocument
@@ -16,19 +17,15 @@ class MockLlmApi(DocumentEmbedder, LlmJsonQuerier):
         pass
 
     def json_query(self, context: str, query: str, expected_schema: Type[T]) -> Result[T, str]:
-        print("="*60)
-        print("="*60)
-        print(f"Querying LLM:")
-        print("-"*60)
-        print(f"Context:\n")
-        print(context)
-        print("-"*60)
-        print(f"Query:\n")
-        print(query)
+        if config.inspect_query():
+            self._inspect_query(query, context)
 
         example_data = generate_example_from_schema(expected_schema.model_json_schema())
         try:
             parsed = expected_schema(**example_data)  # Instantiate the Pydantic model
+            if config.inspect_query():
+                self._inspect_response(parsed)
+
             return Result.new_ok(parsed)
         except Exception as e:
             return Result.new_err(f"Failed to create model: {e}")
@@ -38,6 +35,24 @@ class MockLlmApi(DocumentEmbedder, LlmJsonQuerier):
 
     def embed_documents(self, documents: list[ReadDocument]) -> list[Embedding]:
         return [self.embed_document(doc) for doc in documents]
+
+    def _inspect_query(self, query: str, context: str):
+        print("="*60)
+        print("="*60)
+        print(f"Querying LLM:")
+        print("-"*60)
+        print(f"Context:\n")
+        print(context)
+        print("-"*60)
+        print(f"Query:\n")
+        print(query)
+        input()
+
+    def _inspect_response(self, response: BaseModel):
+            print("-"*60)
+            print("Reponse:\n")
+            print(response.model_dump_json(indent=2))
+            input()
 
 def generate_example_from_schema(schema: dict) -> dict:
     """

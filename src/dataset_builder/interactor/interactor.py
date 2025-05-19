@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Iterator
 from dataset_builder.interactor.dependencies.dataset_reader import DatasetReader
 from dataset_builder.interactor.dependencies.repository import DocumentRepository
 from dataset_builder.interactor.dependencies.doc_embedder import DocumentEmbedder
@@ -15,19 +16,29 @@ class Interactor:
         log_prefix = "Dataset Builder Interactor: "
 
         print(log_prefix + "Reading pdfs...")
-        documents = self.reader.read_pdf_dataset(dataset_root)
-        ok_docs: list[ReadDocument] = []
-        for doc in documents:
-            if doc.is_ok():
-                ok_docs.append(doc.unwrap())
 
-        print(log_prefix + "Embedding documents...")
-        embeddings = self.embedder.embed_documents(ok_docs)
+        for pdf_path in self._find_pdf_files(dataset_root):
 
-        embedded_docs = [EmbeddedDocument(doc, embedding) for doc, embedding in zip(ok_docs, embeddings)]
+            if self.repository.document_exists(pdf_path):
+                print(f"Cache hit: {pdf_path}")
+                continue
 
-        print(log_prefix + "Storing documents...")
-        self.repository.store_documents(embedded_docs)
+            print(f"Cache miss: {pdf_path}")
+
+            result = self.reader.read_pdf_file(pdf_path)
+            if result.is_err():
+                print(f"Error parsing pdf at {pdf_path}: {result.unwrap_err()}")
+                continue
+
+            doc = result.unwrap()
+            embedding = self.embedder.embed_documents([doc])[0]
+            embedded_doc = EmbeddedDocument(doc, embedding)
+
+            self.repository.store_documents([embedded_doc])
+
+    def _find_pdf_files(self, root_path: Path) -> Iterator[Path]:
+        root_path = root_path.resolve()
+        return root_path.rglob("*.pdf")
 
 
 

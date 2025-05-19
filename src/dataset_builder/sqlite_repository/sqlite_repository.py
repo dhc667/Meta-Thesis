@@ -44,7 +44,7 @@ class SQLiteDocumentRepository(DocumentRepository):
                     INSERT INTO documents (
                         path, title, abstract, authors, tutors, full_text,
                         date_year, date_month, date_day, embedding
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     doc.path,
                     doc.title,
@@ -79,3 +79,14 @@ class SQLiteDocumentRepository(DocumentRepository):
                 )
                 result.append(document)
             return result
+
+    def document_exists(self, path: Path) -> bool:
+        with self._connect() as conn:
+            rows = conn.execute("SELECT 1 FROM documents WHERE path = ?", (str(path),))
+            result = False
+            for _ in rows:
+                result = True
+
+            conn.commit()
+            return result
+            

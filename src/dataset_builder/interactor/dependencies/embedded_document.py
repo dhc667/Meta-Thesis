@@ -1,6 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Self
+import numpy as np
 
 from dataset_builder.interactor.dependencies.read_document import ReadDocument
 
@@ -17,6 +18,11 @@ class Embedding(ABC):
     @abstractmethod
     def deserialize(blob: bytes) -> Embedding:
         pass
+
+    @abstractmethod
+    def get_vector(self) -> np.ndarray:
+        pass
+
 
 class EmbeddedDocument:
     def __init__(self, source: ReadDocument, embedding: Embedding) -> None:

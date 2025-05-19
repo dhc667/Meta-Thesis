@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum 
 from typing import Any, TypeVar
 from dataset_builder.dataset_reader.dependencies.doc_buffer import DocumentBuffer
 from dataset_builder.dataset_reader.dependencies.doc_parser import DocumentParser, ParsingError as InterfaceParsingErrror

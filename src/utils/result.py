@@ -3,6 +3,7 @@ from typing import Generic, TypeVar, Optional, Callable
 T = TypeVar("T")  # Original value type
 U = TypeVar("U")  # Mapped value type
 E = TypeVar("E")  # Error type
+Q = TypeVar("Q")  # Mapped Error type
 
 class Result(Generic[T, E]):
     def __init__(self, *args, **kwargs):
@@ -48,6 +49,13 @@ class Result(Generic[T, E]):
             return Result.new_ok(func(self._ok))
         else:
             return Result.new_err(self._err)
+
+    def map_err(self, func: Callable[[E], Q]) -> "Result[T, Q]":
+        if self.is_err():
+            assert self._err != None
+            return Result.new_err(func(self._err))
+        else:
+            return Result.new_ok(self._ok)
 
     def __repr__(self) -> str:
         if self.is_ok():

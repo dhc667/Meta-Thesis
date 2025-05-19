@@ -10,7 +10,7 @@ class PdfBuffer(DocumentBuffer):
         self.page_cache: list[str | None] = [None] * self.len
 
     def get_page(self, page_number: int) -> Optional[str]:
-        self._get_from_cache(page_number)
+        return self._get_from_cache(page_number)
 
     def get_pages(self) -> Iterator[str]:
         for i in range(self.len):
@@ -24,6 +24,5 @@ class PdfBuffer(DocumentBuffer):
 
         if not self.page_cache[page_number]:
             self.page_cache[page_number] = self.pdf.pages[page_number].extract_text()
-
 
         return self.page_cache[page_number]

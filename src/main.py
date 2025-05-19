@@ -1,4 +1,3 @@
-import argparse
 from pathlib import Path
 
 from dataset_builder.dataset_reader.dataset_reader import PdfDatasetReader
@@ -7,6 +6,7 @@ from dataset_builder.mixed_parser.mixed_parser import MixedParser
 from dataset_builder.pypdf_reader.pypdf_reader import PypdfReader
 from dataset_builder.sqlite_repository.sqlite_repository import SQLiteDocumentRepository
 from llm_apis.mock_api import MockLlmApi
+import config
 
 def index():
     llm_api = MockLlmApi()
@@ -22,11 +22,9 @@ def analyze():
     print("Running analysis...")
 
 def main():
-    parser = argparse.ArgumentParser(description="Document analysis pipeline")
-    parser.add_argument('--index', action='store_true', help='Run the indexing step')
-    parser.add_argument('--analyze', action='store_true', help='Run the analysis step')
+    config.init()
 
-    args = parser.parse_args()
+    args = config.get_args()
 
     if args.index:
         index()
