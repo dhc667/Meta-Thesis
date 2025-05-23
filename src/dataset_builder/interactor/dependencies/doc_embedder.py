@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from dataset_builder.interactor.dependencies.embedded_document import Embedding
 from dataset_builder.interactor.dependencies.read_document import ReadDocument
 
-class DocumentEmbedder(ABC):
+class LlmEmbedder(ABC):
     @abstractmethod
-    def embed_documents(self, documents: list[ReadDocument]) -> list[Embedding]:
+    def embed_texts(self, texts: list[str]) -> list[Embedding]:
         pass

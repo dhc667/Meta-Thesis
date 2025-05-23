@@ -24,9 +24,10 @@ class Embedding(ABC):
         pass
 
 
-class EmbeddedDocument:
-    def __init__(self, source: ReadDocument, embedding: Embedding) -> None:
+class PersistenceDocument:
+    def __init__(self, source: ReadDocument, embedding: Embedding, topic: str) -> None:
         self._source = source
+        self.topic = topic
         self.embedding = embedding
 
     @property
