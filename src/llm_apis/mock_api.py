@@ -2,8 +2,8 @@ from typing import Type, TypeVar
 
 from pydantic import BaseModel
 import config
-from dataset_builder.interactor.dependencies.doc_embedder import DocumentEmbedder
-from dataset_builder.interactor.dependencies.embedded_document import EmbeddedDocument, Embedding
+from dataset_builder.interactor.dependencies.doc_embedder import LlmEmbedder
+from dataset_builder.interactor.dependencies.embedded_document import PersistenceDocument, Embedding
 from dataset_builder.interactor.dependencies.read_document import ReadDocument
 from dataset_builder.mixed_parser.llm_parser.depedencies.llm_api import LlmJsonQuerier
 from llm_apis.mock_embedding import MockEmbedding
@@ -12,7 +12,7 @@ from utils.result import Result
 
 T = TypeVar("T", bound=BaseModel)
 
-class MockLlmApi(DocumentEmbedder, LlmJsonQuerier):
+class MockLlmApi(LlmEmbedder, LlmJsonQuerier):
     def __init__(self) -> None:
         pass
 
@@ -30,11 +30,11 @@ class MockLlmApi(DocumentEmbedder, LlmJsonQuerier):
         except Exception as e:
             return Result.new_err(f"Failed to create model: {e}")
 
-    def embed_document(self, document: ReadDocument) -> Embedding:
+    def embed_text(self, text: str) -> Embedding:
         return MockEmbedding()
 
-    def embed_documents(self, documents: list[ReadDocument]) -> list[Embedding]:
-        return [self.embed_document(doc) for doc in documents]
+    def embed_texts(self, texts: list[str]) -> list[Embedding]:
+        return [self.embed_text(doc) for doc in texts]
 
     def _inspect_query(self, query: str, context: str):
         print("="*60)

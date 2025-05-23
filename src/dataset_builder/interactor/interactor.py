@@ -2,15 +2,17 @@ from pathlib import Path
 from typing import Iterator
 from dataset_builder.interactor.dependencies.dataset_reader import DatasetReader
 from dataset_builder.interactor.dependencies.repository import DocumentRepository
-from dataset_builder.interactor.dependencies.doc_embedder import DocumentEmbedder
-from dataset_builder.interactor.dependencies.embedded_document import EmbeddedDocument
+from dataset_builder.interactor.dependencies.doc_embedder import LlmEmbedder
+from dataset_builder.interactor.dependencies.embedded_document import PersistenceDocument
 from dataset_builder.interactor.dependencies.read_document import ReadDocument
+from dataset_builder.interactor.dependencies.topic_extractor import TopicExtractor
 
 class Interactor:
-    def __init__(self, reader: DatasetReader, repository: DocumentRepository, embedder: DocumentEmbedder) -> None:
+    def __init__(self, reader: DatasetReader, repository: DocumentRepository, embedder: LlmEmbedder, topic_extractor: TopicExtractor) -> None:
         self.reader = reader
         self.repository = repository
         self.embedder = embedder
+        self.topic_extractor = topic_extractor
 
     def build_dataset(self, dataset_root: Path) -> None:
         log_prefix = "Dataset Builder Interactor: "
@@ -31,8 +33,9 @@ class Interactor:
                 continue
 
             doc = result.unwrap()
-            embedding = self.embedder.embed_documents([doc])[0]
-            embedded_doc = EmbeddedDocument(doc, embedding)
+            topic = self.topic_extractor.extract_topic(doc)
+            embedding = self.embedder.embed_texts([topic])[0]
+            embedded_doc = PersistenceDocument(doc, embedding, topic)
 
             self.repository.store_documents([embedded_doc])
 

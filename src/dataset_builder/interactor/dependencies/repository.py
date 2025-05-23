@@ -1,16 +1,16 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from dataset_builder.interactor.dependencies.embedded_document import EmbeddedDocument
+from dataset_builder.interactor.dependencies.embedded_document import PersistenceDocument
 
 class DocumentRepository(ABC):
     @abstractmethod
-    def store_documents(self, documents: list[EmbeddedDocument]):
+    def store_documents(self, documents: list[PersistenceDocument]):
         """Stores the given documents in persistent storage"""
         pass
 
     @abstractmethod
-    def get_documents(self) -> list[EmbeddedDocument]:
+    def get_documents(self) -> list[PersistenceDocument]:
         """Returns all documents stored"""
         pass
 
