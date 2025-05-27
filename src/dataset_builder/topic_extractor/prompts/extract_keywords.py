@@ -1,5 +1,4 @@
 """Prompts to extract keywords and topics from academic text, {input} is the text variable"""
-
 from pydantic import BaseModel, Field
 from typing import List
 
@@ -7,7 +6,7 @@ class OutputSchema(BaseModel):
     keywords: List[str] = Field(examples=[["mathematical modeling", "parameter estimation", "metaheuristics"]])
     topics: List[str] = Field(examples=[["Parameter Estimation", "Optimization", "Epidemiological Models"]])
 
-CONTEXT_PROMPT = f"""
+CONTEXT_PROMPT = """
 -- Role --
 You are an Academic Document Analyzer specialized in extracting key terms
 
