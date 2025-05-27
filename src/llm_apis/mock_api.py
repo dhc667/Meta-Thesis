@@ -2,17 +2,17 @@ from typing import Type, TypeVar
 
 from pydantic import BaseModel
 import config
-from dataset_builder.interactor.dependencies.doc_embedder import LlmEmbedder
+from dataset_builder.interactor.dependencies.doc_embedder import Embedder
 from dataset_builder.interactor.dependencies.embedded_document import PersistenceDocument, Embedding
 from dataset_builder.interactor.dependencies.read_document import ReadDocument
-from dataset_builder.mixed_parser.llm_parser.depedencies.llm_api import LlmJsonQuerier
+from dataset_builder.mixed_parser.llm_parser.depedencies.llm_api import JsonGenerator
 from llm_apis.mock_embedding import MockEmbedding
 from utils.result import Result
 
 
 T = TypeVar("T", bound=BaseModel)
 
-class MockLlmApi(LlmEmbedder, LlmJsonQuerier):
+class MockLlmApi(Embedder, JsonGenerator):
     def __init__(self) -> None:
         pass
 

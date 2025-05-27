@@ -5,7 +5,7 @@ from utils.result import Result
 
 T = TypeVar("T", bound=BaseModel)
 
-class LlmJsonQuerier(ABC):
+class JsonGenerator(ABC):
     @abstractmethod
     def json_query(self, context: str, query: str, expected_schema: Type[T]) -> Result[T, str]:
         pass

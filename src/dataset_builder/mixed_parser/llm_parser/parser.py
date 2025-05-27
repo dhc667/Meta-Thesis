@@ -1,15 +1,16 @@
 from typing import Iterator
 from dataset_builder.dataset_reader.dependencies.doc_buffer import DocumentBuffer
-from dataset_builder.mixed_parser.llm_parser.depedencies.llm_api import LlmJsonQuerier
+from dataset_builder.mixed_parser.llm_parser.depedencies.llm_api import JsonGenerator
 from dataset_builder.mixed_parser.llm_parser.prompts.find_abstract import FIND_ABSTRACT_CONTEXT, FIND_ABSTRACT_QUERY, OutputSchema as FindAbstractOutput
 from dataset_builder.mixed_parser.llm_parser.prompts.get_metadata import FIND_THESIS_METADATA_CONTEXT, FIND_THESIS_METADATA_QUERY, OutputSchema as FindMetadataOuput
+from dataset_builder.mixed_parser.llm_parser.prompts.summarize import GENERATE_ABSTRACT_QUERY, GENERATE_ABSTRACT_CONTEXT, OutputSchema as GenerateAbstractOutputSchema
 from dataset_builder.mixed_parser.parsing_error import ParsingError
 from utils.partial_date import PartialDate
 from utils.result import Result
 
 
 class LlmParser:
-    def __init__(self, llm_api: LlmJsonQuerier, buffer: DocumentBuffer) -> None:
+    def __init__(self, llm_api: JsonGenerator, buffer: DocumentBuffer) -> None:
         self.llm_api = llm_api
         self.buffer = buffer
         self.metadata: Result[FindMetadataOuput, ParsingError] | None = None
@@ -27,7 +28,21 @@ class LlmParser:
             if answ.is_abstract:
                 return Result.new_ok(answ.abstract)
 
-        return Result.new_err(ParsingError.AbstractNotFound)
+        current_summary = ""
+        for i, page in enumerate(self.buffer.get_pages()):
+            answ = self.llm_api.json_query(GENERATE_ABSTRACT_CONTEXT(), GENERATE_ABSTRACT_QUERY(i + 1, self.buffer.page_count(), current_summary, page), GenerateAbstractOutputSchema)
+            if answ.is_err():
+                print(answ.unwrap_err())
+                return Result.new_err(ParsingError.BadLlmOutput)
+
+            answ = answ.unwrap()
+            if answ.relevance:
+                current_summary = answ.updated_summary
+            if answ.is_summary_sufficient:
+                return Result.new_ok(current_summary)
+
+        return Result.new_ok(current_summary)
+
 
     def parse_tutors(self) -> Result[list[str], ParsingError]:
         """Parses metadata from the first page of the thesis, caches the result, returns the tutors"""
@@ -94,6 +109,7 @@ class LlmParser:
         if answ.is_err():
             print(answ.unwrap_err())
             self.metadata = Result.new_err(ParsingError.BadLlmOutput)
+            return
 
         self.metadata = Result.new_ok(answ.unwrap())
 

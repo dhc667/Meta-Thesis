@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import Type, TypeVar
 
-from dataset_builder.interactor.dependencies.embedded_document import PersistenceDocument
+from dataset_builder.interactor.dependencies.embedded_document import Embedding, PersistenceDocument
+
+T = TypeVar("T", bound=Embedding)
 
 class DocumentRepository(ABC):
     @abstractmethod
@@ -10,7 +13,7 @@ class DocumentRepository(ABC):
         pass
 
     @abstractmethod
-    def get_documents(self) -> list[PersistenceDocument]:
+    def get_documents(self, embedding_type: Type[T]) -> list[PersistenceDocument]:
         """Returns all documents stored"""
         pass
 

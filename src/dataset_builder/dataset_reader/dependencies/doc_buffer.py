@@ -11,3 +11,7 @@ class DocumentBuffer(ABC):
     def get_pages(self) -> Iterator[str]:
         """Returns an iterator over the pages of the document"""
         pass
+
+    @abstractmethod
+    def page_count(self) -> int:
+        pass

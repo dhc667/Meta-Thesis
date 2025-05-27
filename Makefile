@@ -16,7 +16,7 @@ index-inspect: ## Same as index, but also stops execution every time a query is 
 	cd $(SRC_DIR) && $(PYTHON) main.py --index --inspect-query
 
 analyze: ## Placeholder
-	cd $(SRC_DIR) && $(PYTHON) main.py --analyze
+	cd $(SRC_DIR) && streamlit run presenter.py
 
 pipeline: ## Runs index and analyze
 	cd $(SRC_DIR) && $(PYTHON) main.py --index

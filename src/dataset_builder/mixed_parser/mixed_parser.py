@@ -4,14 +4,14 @@ from dataset_builder.dataset_reader.dependencies.doc_buffer import DocumentBuffe
 from dataset_builder.dataset_reader.dependencies.doc_parser import DocumentParser, ParsingError as InterfaceParsingErrror
 from dataset_builder.dataset_reader.dependencies.document import Document
 from dataset_builder.mixed_parser.algorithmic_parser.algorithmic_parser import AlgorithmicParser
-from dataset_builder.mixed_parser.llm_parser.depedencies.llm_api import LlmJsonQuerier
+from dataset_builder.mixed_parser.llm_parser.depedencies.llm_api import JsonGenerator
 from dataset_builder.mixed_parser.llm_parser.parser import LlmParser
 from dataset_builder.mixed_parser.parsing_error import ParsingError
 from utils.result import Result
 
 
 class MixedParser(DocumentParser):
-    def __init__(self, llm_api: LlmJsonQuerier) -> None:
+    def __init__(self, llm_api: JsonGenerator) -> None:
         self.llm_api = llm_api
 
     def parse_documents(self, buffers: list[DocumentBuffer]) -> list[Result[Document, InterfaceParsingErrror]]:
@@ -29,6 +29,7 @@ class MixedParser(DocumentParser):
 
             err = return_first_error([title, authors, tutors, date, abstract])
             if err:
+                print("Parser:", str(err))
                 if err == ParsingError.NoFirstPage:
                     answ += [Result.new_err(InterfaceParsingErrror.EmptyDocument)]
                 elif err == ParsingError.BadLlmOutput or err == ParsingError.AbstractNotFound:

@@ -26,3 +26,6 @@ class PdfBuffer(DocumentBuffer):
             self.page_cache[page_number] = self.pdf.pages[page_number].extract_text()
 
         return self.page_cache[page_number]
+
+    def page_count(self) -> int:
+        return self.len

@@ -1,14 +1,15 @@
 import sqlite3
 import json
-import pickle
 from pathlib import Path
-from typing import List
+from typing import List, Type, TypeVar
 
 from dataset_builder.interactor.dependencies.embedded_document import PersistenceDocument
 from dataset_builder.interactor.dependencies.read_document import ReadDocument
 from dataset_builder.interactor.dependencies.embedded_document import Embedding
 from dataset_builder.interactor.dependencies.repository import DocumentRepository
 from utils.partial_date import PartialDate
+
+T = TypeVar("T", bound=Embedding)
 
 class SQLiteDocumentRepository(DocumentRepository):
     def __init__(self, db_path: Path):
@@ -57,11 +58,12 @@ class SQLiteDocumentRepository(DocumentRepository):
                     doc.date.year,
                     doc.date.month,
                     doc.date.day,
-                    pickle.dumps(doc.embedding)
+                    doc.embedding.serialize()
                 ))
             conn.commit()
 
-    def get_documents(self) -> List[PersistenceDocument]:
+
+    def get_documents(self, embedding_type: Type[T]) -> List[PersistenceDocument]:
         with self._connect() as conn:
             rows = conn.execute("SELECT path, title, abstract, topic, authors, tutors, full_text, date_year, date_month, date_day, embedding FROM documents")
             result = []
@@ -77,11 +79,23 @@ class SQLiteDocumentRepository(DocumentRepository):
                         date=PartialDate(year, month, day),
                         full_text=full_text
                     ),
-                    embedding=Embedding.deserialize(embedding_blob),
+                    embedding=embedding_type.deserialize(embedding_blob),
                     topic=topic,
                 )
                 result.append(document)
             return result
+
+    def update_document(self, doc: PersistenceDocument):
+        with self._connect() as conn:
+            conn.execute("""
+                UPDATE documents 
+                SET embedding = ?
+                WHERE path = ?
+            """, (
+                doc.embedding.serialize(),
+                doc.path
+            ))
+            conn.commit()
 
     def document_exists(self, path: Path) -> bool:
         with self._connect() as conn:
