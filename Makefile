@@ -3,11 +3,14 @@
 PYTHON := python3
 SRC_DIR := src
 
-.PHONY: index analyze index-inspect pipeline present present-inspect help
+.PHONY: index analyze index-inspect pipeline present present-inspect help install-dependencies
 
 help:  ## Show help for each command
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+install-dependencies: ## Install Python dependencies from requirements.txt
+	$(PYTHON) -m pip install -r requirements.txt
 
 index: ## Reads the dataset and saves it in a repository
 	cd $(SRC_DIR) && $(PYTHON) main.py index
