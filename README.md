@@ -44,6 +44,8 @@ cd Meta-Thesis
 make install-dependencies
 ```
 
+3. Create an `env/.env` file with `FIREWORKS_API_KEY=your-api-key`, in order to provision the llm api implementation
+
 ## Usage
 
 The project provides two main commands through the Makefile:
@@ -57,9 +59,15 @@ make index
 ```
 
 This command will:
-- Process your input documents
-- Generate embeddings
+- Process your input documents, which must be located in a `theses/` folder in the root of the directory, by finding the title, date, authors, and extracting the abstract
+- Generate embeddings, which are currently of the abstracts of each document
 - Store them in the repository
+
+You will start seeing `Cache miss: /path/to/document.pdf`, then `Waiting 5 seconds...`, `Wait is up` printed to stdoutput, this is because
+1. The system first checks if a document is already indexed in the repository, by matching the path, if so, it will skip the indexing process, this way, if the pipeline fails or is stopped, the progress lost will be limited to the processing of one document
+2. After each query to the fireworks api, we must wait some time, because there is a query rate limit
+
+Finally, consider some documents will have to be read multiple times to compose an abstract, this is for cases in which there is no clear abstract section, so one will have to be computed by summarizing the text
 
 ### 2. Launch Visualization Interface
 
