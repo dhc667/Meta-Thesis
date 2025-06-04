@@ -6,9 +6,16 @@ def init():
     global _args
     if _args is None:
         parser = argparse.ArgumentParser(description="Document analysis pipeline")
-        parser.add_argument('-i', '--index', action='store_true', help='Run the indexing step')
-        # parser.add_argument('-v', '--verbose', action='store_true', help='Increase logging')
-        parser.add_argument('--inspect-query', action='store_true', help='Inspect llm queries one by one')
+        subparsers = parser.add_subparsers(dest='command', help='Command to run')
+        
+        # Index command
+        index_parser = subparsers.add_parser('index', help='Run the indexing step')
+        index_parser.add_argument('--inspect-query', action='store_true', help='Inspect LLM queries one by one')
+        
+        # Present command
+        present_parser = subparsers.add_parser('present', help='Run the visualization presenter')
+        present_parser.add_argument('--inspect-query', action='store_true', help='Inspect LLM queries and responses')
+        
         _args = parser.parse_args()
 
 def get_args():

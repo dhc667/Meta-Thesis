@@ -6,12 +6,13 @@ from typing import List, Type, TypeVar
 from dataset_builder.interactor.dependencies.embedded_document import PersistenceDocument
 from dataset_builder.interactor.dependencies.read_document import ReadDocument
 from dataset_builder.interactor.dependencies.embedded_document import Embedding
-from dataset_builder.interactor.dependencies.repository import DocumentRepository
+from dataset_builder.interactor.dependencies.repository import DocumentRepository as DSBuilderDocRepo
+from presenter import DocumentRepository as PresenterDocRepo
 from utils.partial_date import PartialDate
 
 T = TypeVar("T", bound=Embedding)
 
-class SQLiteDocumentRepository(DocumentRepository):
+class SQLiteDocumentRepository(DSBuilderDocRepo, PresenterDocRepo):
     def __init__(self, db_path: Path):
         self.db_path = db_path
         self._ensure_table()
