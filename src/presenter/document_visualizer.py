@@ -10,6 +10,7 @@ from sklearn.manifold import TSNE
 
 from .interfaces import DocumentRepository, DocumentMetadata
 from .config import VisualizationConfig
+from utils.fix_text import fix_text
 
 class DocumentVisualizer:
     def __init__(self, repository: DocumentRepository, config: VisualizationConfig | None = None):
@@ -47,9 +48,9 @@ class DocumentVisualizer:
         embeddings = np.array([m.embedding for m in metadata])
         df = pd.DataFrame({
             'Path': [m.path for m in metadata],
-            'Name': [m.title for m in metadata],
-            'Author': [", ".join(m.authors) for m in metadata],
-            'Category': [m.topic for m in metadata]
+            'Name': [fix_text(m.title) for m in metadata],
+            'Author': [", ".join([fix_text(author) for author in m.authors]) for m in metadata],
+            'Category': [fix_text(m.topic) for m in metadata]
         })
         
         # Scale the embeddings
