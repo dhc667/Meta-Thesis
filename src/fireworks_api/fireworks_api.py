@@ -2,17 +2,17 @@ import os
 from typing import Type, TypeVar
 import fireworks.client
 from dotenv import load_dotenv
-from openai import OpenAI, responses
+from openai import OpenAI
 from pydantic import BaseModel
 import numpy as np
 import time
 
 import config
 
-from dataset_builder.interactor.dependencies.doc_embedder import Embedder
-from dataset_builder.mixed_parser.llm_parser.depedencies.llm_api import JsonGenerator
+from dataset_builder.mixed_parser.llm_parser.depedencies.llm_api import JsonGenerator as ParserJsonGenerator
 from dataset_builder.interactor.dependencies.embedded_document import Embedding
 from fireworks_api.fireworks_embedding import FireworksEmbedding
+from presenter.interfaces import JsonGenerator as PresenterJsonGenerator
 from utils.result import Result
 
 T = TypeVar("T", bound=BaseModel)
@@ -24,7 +24,8 @@ models = [
     'accounts/fireworks/models/deepseek-r1' # $3.00 input, $8.00 output
 ]
 
-class FireworksApi(Embedder, JsonGenerator):
+class FireworksApi(ParserJsonGenerator, PresenterJsonGenerator):
+    """Implementation of various JSON generation interfaces using the Fireworks API."""
     def __init__(self):
         dotenv_path = '../env/.env'
 
